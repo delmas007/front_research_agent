@@ -6,12 +6,13 @@ import {HttpClient} from '@angular/common/http';
 })
 
 export class BaseService {
-  url = 'http://localhost:8000/api/v1/pdf/';
+  url = '/api/generate-pdf';
   constructor(
     private httpClient: HttpClient
   ) { }
 
   post( data: any) {
+    console.log(data)
     return this.httpClient.post(this.url, data, {  responseType: 'blob',
       observe: 'response' });
   }

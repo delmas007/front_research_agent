@@ -99,18 +99,21 @@ export class AppComponent {
           console.log(response.headers)
           let filename = 'fichier.pdf';
           if (contentDisposition) {
-            const match = contentDisposition.match(/filename="?([^"]+)"?/);
-            if (match && match[1]) {
+            const utf8FilenameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)/);
+            const asciiFilenameMatch = contentDisposition.match(/filename="(.+)"/);
 
-              filename = match[1];
+            if (utf8FilenameMatch && utf8FilenameMatch[1]) {
+              filename = decodeURIComponent(utf8FilenameMatch[1]);
+            } else if (asciiFilenameMatch && asciiFilenameMatch[1]) {
+              filename = asciiFilenameMatch[1];
             }
           }
 
           this.pdfBlob = response.body;
           if (this.pdfBlob) {
-            this.pdfSize = Math.round((this.pdfBlob.size / 1024) * 100) / 100; // arrondi Ko
+            this.pdfSize = Math.round((this.pdfBlob.size / 1024) * 100) / 100;
             this.pdfFilename = filename;
-            this.responseText = `Voici le document PDF généré par DELMASIA`;
+            this.responseText = `Voici le document PDF généré par REDACT IA`;
             const objectUrl = URL.createObjectURL(this.pdfBlob);
             this.pdfBlobUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
           }
@@ -141,7 +144,6 @@ export class AppComponent {
         shareUrl = `https://wa.me/?text=${text}%0A${encodedUrl}`;
         break;
       case 'slack':
-        // Slack ne permet pas le partage direct via URL — redirige vers l'app web
         shareUrl = `https://slack.com/app_redirect?channel=general`;
         break;
       case 'linkedin':
